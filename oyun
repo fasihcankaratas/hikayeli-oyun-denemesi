@@ -1,0 +1,126 @@
+import pygame
+import sys
+
+pygame.init()
+
+# Ekran ayarları
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Hikaye Bazlı Macera Oyunu")
+
+# Renkler ve yazı tipi
+WHITE = (255, 255, 255)
+font = pygame.font.Font(None, 36)
+
+# Resim dosyaları
+path_image = pygame.image.load("path.png")
+river_image = pygame.image.load("river.png")
+house_image = pygame.image.load("house.png")
+
+# Müzikler
+pygame.mixer.init()
+background_music = "background_music.mp3"
+happy_music = "happy_music.mp3"
+sad_music = "sad_music.mp3"
+
+def play_music(music_file):
+    pygame.mixer.music.load(music_file)
+    pygame.mixer.music.play(-1)
+
+def stop_music():
+    pygame.mixer.music.stop()
+
+# Metin yazdırma
+def draw_text(text, x, y):
+    rendered_text = font.render(text, True, WHITE)
+    screen.blit(rendered_text, (x, y))
+
+# Sahne 1: Başlangıç
+def scene1():
+    play_music(background_music)
+    screen.blit(path_image, (0, 0))
+    draw_text("Bir yola çıktınız. Karşınıza bir kadın çıktı.", 50, 50)
+    draw_text("1 - Kadını alıp eve gidin", 50, 100)
+    draw_text("2 - Kadını bırakıp yola devam edin", 50, 150)
+    pygame.display.flip()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return "house"
+                elif event.key == pygame.K_2:
+                    return "river"
+
+# Sahne 2A: Eve gitme
+def scene2_house():
+    stop_music()
+    play_music(happy_music)
+    screen.blit(house_image, (0, 0))
+    draw_text("Kadını eve götürdünüz. Mutlu bir hayatınız oldu.", 50, 50)
+    pygame.display.flip()
+    pygame.time.delay(5000)
+    stop_music()
+
+# Sahne 2B: Nehirle karşılaşma
+def scene2_river():
+    stop_music()
+    play_music(sad_music)
+    screen.blit(river_image, (0, 0))
+    draw_text("Kadını bırakıp yola devam ettiniz.", 50, 50)
+    draw_text("Karşınıza bir nehir çıktı. Yüzmek ister misiniz?", 50, 100)
+    draw_text("1 - Evet, yüzerek geç", 50, 150)
+    draw_text("2 - Hayır, geri dön", 50, 200)
+    pygame.display.flip()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return "swim"
+                elif event.key == pygame.K_2:
+                    return "return"
+
+# Sahne 3A: Nehirde yüzme
+def scene3_swim():
+    stop_music()
+    screen.fill((0, 0, 255))
+    draw_text("Nehirden geçtiniz ve yeni bir yol buldunuz.", 50, 50)
+    pygame.display.flip()
+    pygame.time.delay(5000)
+
+# Sahne 3B: Geri dönme
+def scene3_return():
+    stop_music()
+    screen.fill((0, 0, 0))
+    draw_text("Geri döndünüz ve yolda kayboldunuz.", 50, 50)
+    pygame.display.flip()
+    pygame.time.delay(5000)
+
+# Oyun döngüsü
+def game_loop():
+    current_scene = "scene1"
+
+    while current_scene:
+        if current_scene == "scene1":
+            current_scene = scene1()
+        elif current_scene == "house":
+            scene2_house()
+            current_scene = None
+        elif current_scene == "river":
+            current_scene = scene2_river()
+        elif current_scene == "swim":
+            scene3_swim()
+            current_scene = None
+        elif current_scene == "return":
+            scene3_return()
+            current_scene = None
+
+game_loop()
+pygame.quit()
